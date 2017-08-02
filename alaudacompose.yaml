@@ -1,0 +1,117 @@
+rabbitmq:
+  image: 168.61.4.210:5000/htspringclouddemo/rabbitmq:3-management
+  subnet: PUBLIC-htzq
+  alauda_lb: ALB
+  ports:
+    - 'haproxy-ip-168-61-5-10:15672:15672'
+    - 'haproxy-ip-168-61-5-10:5672:5672'
+data-mongodb:
+  image: 168.61.4.210:5000/htspringclouddemo/piggymetrics-mongodb
+  environment:
+    LBIP: 168.61.5.10
+    INIT_DUMP: account-service-dump.js
+    MONGODB_PASSWORD: admin 
+  subnet: PUBLIC-htzq
+  alauda_lb: ALB
+  ports:
+    - 'haproxy-ip-168-61-5-10:27017:27017'
+config:
+  image: 168.61.4.210:5000/htspringclouddemo/piggymetrics-config
+  environment:
+    LBIP: 168.61.5.10
+    CONFIG_SERVICE_PASSWORD: admin
+  links:
+    - 'rabbitmq:rabbitmq'
+    - 'data-mongodb:data-mongodb'
+  subnet: PUBLIC-htzq
+  alauda_lb: ALB
+  ports:
+    - 'haproxy-ip-168-61-5-10:8888:8888'
+registry:
+  image: 168.61.4.210:5000/htspringclouddemo/piggymetrics-registry
+  environment:
+    LBIP: 168.61.5.10
+    CONFIG_SERVICE_PASSWORD: admin
+  links:
+    - 'config:config'
+  subnet: PUBLIC-htzq
+  alauda_lb: ALB
+  ports:
+    - 'haproxy-ip-168-61-5-10:8761:8761'
+gateway:
+  image: 168.61.4.210:5000/htspringclouddemo/piggymetrics-gateway
+  environment:
+    LBIP: 168.61.5.10
+    CONFIG_SERVICE_PASSWORD: admin 
+  links:
+    - 'config:config'
+  subnet: PUBLIC-htzq
+  alauda_lb: ALB
+  ports:
+    - 'haproxy-ip-168-61-5-10:4000:4000'
+auth-service:
+  image: 168.61.4.210:5000/htspringclouddemo/piggymetrics-auth-service
+  environment:
+    LBIP: 168.61.5.10
+    CONFIG_SERVICE_PASSWORD: admin
+    NOTIFICATION_SERVICE_PASSWORD: admin
+    STATISTICS_SERVICE_PASSWORD: admin
+    ACCOUNT_SERVICE_PASSWORD: admin
+    MONGODB_PASSWORD: admin
+  links:
+    - 'config:config'
+  subnet: PUBLIC-htzq
+  alauda_lb: ALB
+  ports:
+    - 'haproxy-ip-168-61-5-10:5000:5000'
+account-service:
+  image: 168.61.4.210:5000/htspringclouddemo/piggymetrics-account-service
+  environment:
+    LBIP: 168.61.5.10
+    CONFIG_SERVICE_PASSWORD: admin
+    ACCOUNT_SERVICE_PASSWORD: admin
+    MONGODB_PASSWORD: admin
+  links:
+    - 'config:config'
+  subnet: PUBLIC-htzq
+  alauda_lb: ALB
+  ports:
+    - 'haproxy-ip-168-61-5-10:6000:6000'
+statistics-service:
+  image: 168.61.4.210:5000/htspringclouddemo/piggymetrics-statistics-service
+  environment:
+    LBIP: 168.61.5.10
+    CONFIG_SERVICE_PASSWORD: admin
+    MONGODB_PASSWORD: admin
+    STATISTICS_SERVICE_PASSWORD: admin
+  links:
+    - 'config:config'
+  subnet: PUBLIC-htzq
+  alauda_lb: ALB
+  ports:
+    - 'haproxy-ip-168-61-5-10:7000:7000' 
+notification-service:
+  image: 168.61.4.210:5000/htspringclouddemo/piggymetrics-notification-service
+  environment:
+    LBIP: 168.61.5.10
+    CONFIG_SERVICE_PASSWORD: admin
+    MONGODB_PASSWORD: admin
+    NOTIFICATION_SERVICE_PASSWORD: admin
+  links:
+    - 'config:config'
+  subnet: PUBLIC-htzq
+  alauda_lb: ALB
+  ports:
+    - 'haproxy-ip-168-61-5-10:8000:8000'
+monitoring:
+  image: 168.61.4.210:5000/htspringclouddemo/piggymetrics-monitoring
+  environment:
+    LBIP: 168.61.5.10
+    CONFIG_SERVICE_PASSWORD: admin
+  links:
+    - 'config:config'
+  subnet: PUBLIC-htzq
+  alauda_lb: ALB
+  ports:
+    - 'haproxy-ip-168-61-5-10:8080:8080/http'
+    - 'haproxy-ip-168-61-5-10:8989:8989'
