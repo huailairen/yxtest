@@ -1,0 +1,14 @@
+
+ cat /etc/hosts
+ mvn  -Dmaven.test.skip  package 2>&1 |tee package.log
+ mvn test  2>&1|tee test.log
+ cp Dockerfile $CI_DEST_DIR
+ cp ./target/*.jar $CI_DEST_DIR
+ cp ./target/*.jar $CI_UPLOAD_DIR
+ cp ./test.log $CI_UPLOAD_DIR
+ cp ./package.log  $CI_UPLOAD_DIR
+ sed -i  '/^[0-9]*\/[0-9]* KB/d' package.txt
+
+#######
+# mvn  -Dmaven.test.skip  package 2>&1 |tee package.log
+# 
