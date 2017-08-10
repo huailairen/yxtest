@@ -1,14 +1,20 @@
 
- cat /etc/hosts
- mvn  -Dmaven.test.skip  package 2>&1 |tee package.log
- mvn test  2>&1|tee test.log
- cp Dockerfile $CI_DEST_DIR
- cp ./target/*.jar $CI_DEST_DIR
- cp ./target/*.jar $CI_UPLOAD_DIR
- cp ./test.log $CI_UPLOAD_DIR
- cp ./package.log  $CI_UPLOAD_DIR
- sed -i  '/^[0-9]*\/[0-9]* KB/d' package.txt
+ cat /etc/hosts   #显示本地host配置，防止地址配置错误
+   
+ mvn  -Dmaven.test.skip  package 2>&1 |tee package.log 
+  # 将mvn package的标准输出和错误输出，输出一份到package.log，标准输出还继续保留，而且jar包的下载进度还显示
+ 
+ mvn test  2>&1|tee test.log  
+   # 将mvn test 的标准输出和错误输出，输出一份到package.log，标准输出还继续保留，而且jar包的下载进度还显示
+   
+ sed '/^[0-9]*\/[0-9]* KB/d' package.log > packagemini.log
+  # 将package.log中的进度信息删除，便于阅读，导出到packagemini.log
+  
+ cp Dockerfile $CI_DEST_DIR            #拷贝Dockerfile到构建目录，用于构建镜像
+ cp ./target/*.jar $CI_DEST_DIR        #拷贝jar包到构建目录，用于构建镜像
+ cp ./target/*.jar $CI_UPLOAD_DIR      #拷贝jar包到upload目录，用于生成物下载
+ cp ./test.log $CI_UPLOAD_DIR          #拷贝日志到upload目录，用于生成物下载
+ cp ./package.log  $CI_UPLOAD_DIR      #如上
+ cp ./packagemini.log   $CI_UPLOAD_DIR #如上
+ 
 
-#######
-# mvn  -Dmaven.test.skip  package 2>&1 |tee package.log
-# 
